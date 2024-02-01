@@ -1,11 +1,15 @@
-import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { loginUser } from '../../redux/slices/userSlice';
 
 export const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, error, status } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  console.log(error);
+
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -17,18 +21,14 @@ export const SignIn = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
-
-    try {
-      await axios.post('/api/auth/signin', formData);
-      navigate('/');
-    } catch (error) {
-      const errorMessage = error.response.data.message;
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(loginUser(formData));
   };
+
+  useEffect(() => {
+    if (status === 'success') {
+      navigate('/');
+    }
+  }, [status, navigate]);
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-center text-3xl font-bold mb-4'>Sing In</h1>
@@ -67,7 +67,7 @@ export const SignIn = () => {
         </div>
       </form>
       {error && (
-        <p className='flex items-center gap-1 text-red-500'> {error}</p>
+        <p className='flex items-center gap-1 mt-2 text-red-500'> {error}</p>
       )}
     </div>
   );

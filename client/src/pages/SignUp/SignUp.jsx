@@ -1,12 +1,12 @@
-import { BiError } from 'react-icons/bi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../../redux/slices/userSlice';
 
 export const SignUp = () => {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, status, error } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -16,25 +16,21 @@ export const SignUp = () => {
     });
   };
 
-  const handleSubbit = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
-    try {
-      setIsLoading(true);
-      await axios.post('/api/auth/signup', formData);
-      navigate('/sign-in');
-    } catch (error) {
-      const errorMessage = error.response.data.message;
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(registerUser(formData));
   };
+
+  useEffect(() => {
+    if (status === 'success') {
+      navigate('/sign-in');
+    }
+  }, [status, navigate]);
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-center text-3xl font-bold mb-4'>Create an account</h1>
       <form
-        onSubmit={handleSubbit}
+        onSubmit={handleSubmit}
         className='flex flex-col gap-4'
       >
         <input
@@ -76,10 +72,7 @@ export const SignUp = () => {
         </div>
       </form>
       {error && (
-        <p className='flex items-center gap-1 text-red-500'>
-          <BiError />
-          {error}
-        </p>
+        <p className='flex items-center gap-1 mt-2 text-red-500'>{error}</p>
       )}
     </div>
   );
