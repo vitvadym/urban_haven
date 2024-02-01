@@ -22,7 +22,6 @@ export const SignUp = () => {
     try {
       setIsLoading(true);
       await axios.post('/api/auth/signup', formData);
-      console.log(formData);
       navigate('/sign-in');
     } catch (error) {
       const errorMessage = error.response.data.message;
@@ -72,7 +71,7 @@ export const SignUp = () => {
             className='text-slate-500 text-sm underline'
             to='/sign-in'
           >
-            Sing in
+            Sign in
           </Link>
         </div>
       </form>
