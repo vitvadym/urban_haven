@@ -4,9 +4,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .thumb-swiper .swiper-slide {
+    @apply mt-2 opacity-50;
+  }
+
+  .thumb-swiper .swiper-slide-thumb-active {
+    @apply opacity-100;
+  }
+}
+
 :root {
   font-family: 'Poppins', sans-serif;
-  text-rendering: optimizeLegibility;
+  /* text-rendering: optimizeLegibility; */
+  /* background-color: rgb(241, 245, 241); */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-y: scroll;
 }

@@ -2,10 +2,20 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../../redux/slices/userSlice';
+import {
+  selectError,
+  selectIsLoading,
+  selectIsAuth,
+} from '../../redux/slices/userSlice';
+import OAuth from '../../components/OAuth/OAuth';
+import Loader from '../../components/Loader';
 
 export const SignUp = () => {
   const [formData, setFormData] = useState({});
-  const { isLoading, status, error } = useSelector((state) => state.user);
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+  const isAuth = useSelector(selectIsAuth);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -22,33 +32,33 @@ export const SignUp = () => {
   };
 
   useEffect(() => {
-    if (status === 'success') {
+    if (isAuth) {
       navigate('/sign-in');
     }
-  }, [status, navigate]);
+  }, [isAuth, navigate]);
   return (
-    <div className='p-3 max-w-lg mx-auto'>
-      <h1 className='text-center text-3xl font-bold mb-4'>Create an account</h1>
+    <div className='mx-auto max-w-lg p-3'>
+      <h1 className='mb-4 text-center text-3xl font-bold'>Create an account</h1>
       <form
         onSubmit={handleSubmit}
         className='flex flex-col gap-4'
       >
         <input
-          className='border p-3 rounded-lg'
+          className='rounded-lg border p-3 outline-none duration-300 focus:shadow-sm'
           type='text'
           placeholder='Username'
           name='username'
           onChange={handleChange}
         />
         <input
-          className='border p-3 rounded-lg'
+          className='rounded-lg border p-3 outline-none duration-300 focus:shadow-sm'
           type='email'
           placeholder='Email'
           name='email'
           onChange={handleChange}
         />
         <input
-          className='border p-3 rounded-lg'
+          className='rounded-lg border p-3 outline-none duration-300 focus:shadow-sm'
           type='password'
           placeholder='Password'
           name='password'
@@ -57,14 +67,15 @@ export const SignUp = () => {
 
         <button
           disabled={isLoading}
-          className='bg-slate-700 text-white p-3 rounded-lg shadow-sm uppercase hover:opacity-95 disabled:opacity-80'
+          className='rounded-lg bg-slate-700 p-3 uppercase text-white shadow-sm hover:opacity-95 disabled:opacity-80'
         >
-          {isLoading ? 'Loading...' : 'Create account'}
+          {isLoading ? <Loader /> : 'Create account'}
         </button>
-        <div className='flex gap-2 items-center'>
+        <OAuth />
+        <div className='flex items-center gap-2'>
           <p className='text-sm'>Have an account?</p>
           <Link
-            className='text-slate-500 text-sm underline'
+            className='text-sm text-slate-500 underline'
             to='/sign-in'
           >
             Sign in
@@ -72,7 +83,7 @@ export const SignUp = () => {
         </div>
       </form>
       {error && (
-        <p className='flex items-center gap-1 mt-2 text-red-500'>{error}</p>
+        <p className='mt-2 flex items-center gap-1 text-red-500'>{error}</p>
       )}
     </div>
   );

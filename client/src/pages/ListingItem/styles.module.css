@@ -1,0 +1,38 @@
+.wrapper {
+  @apply mx-auto max-w-6xl p-3;
+}
+
+.loader {
+  @apply fixed bottom-0 left-0 right-0 top-0 flex items-center justify-center;
+}
+
+.error {
+  @apply mt-10 text-center text-red-500;
+}
+
+.content {
+  @apply mt-6 p-3 text-center;
+}
+
+.contentHeader {
+  @apply text-4xl font-semibold;
+}
+
+.contentAddress {
+  @apply mb-2 mt-5 flex items-center gap-2;
+}
+.contentDescription {
+  @apply whitespace-pre-wrap p-3 text-justify text-slate-600;
+}
+
+.contentListingType {
+  @apply w-full max-w-[200px] rounded-md bg-red-900 p-1 text-center text-white;
+}
+
+.amenities {
+  @apply flex flex-wrap items-center gap-4 text-sm font-semibold text-green-900 sm:gap-6;
+}
+
+.amenitiesItem {
+  @apply flex items-center gap-1;
+}

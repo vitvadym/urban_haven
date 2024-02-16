@@ -1,7 +1,8 @@
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import ApiError from '../utils/ApiError.js';
-import jwt from 'jsonwebtoken';
+import generatePassword from '../utils/generatePassword.js';
+import createToken from '../utils/createToken.js';
 
 export const signUp = async (req, res, next) => {
   try {
@@ -14,17 +15,18 @@ export const signUp = async (req, res, next) => {
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = new User({
+    const user = new User({
       username,
       email,
       password: hashedPassword,
     });
-    await newUser.save();
+    const token = createToken(user);
+    await user.save();
 
-    return res.status(201).json({
-      message: 'Success',
-      newUser,
-    });
+    return res
+      .status(201)
+      .cookie('token', token, { httpOnly: true })
+      .json(user);
   } catch (error) {
     next(error);
   }
@@ -34,26 +36,71 @@ export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const existUser = await User.findOne({ email });
 
-    if (!user) {
+    if (!existUser) {
       return next(new ApiError('User does not exist', 404));
     }
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
+    const isPasswordValid = bcrypt.compareSync(password, existUser.password);
 
     if (!isPasswordValid) {
       return next(new ApiError('Incorrect password or login', 401));
     }
 
-    const { password: pass, ...rest } = user._doc;
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    const { password: pass, ...user } = existUser._doc;
+    const token = createToken(existUser);
 
-    return res.cookie('token', token, { httpOnly: true }).status(200).json({
-      message: 'Success',
-      user: rest,
-    });
+    return res
+      .cookie('token', token, { httpOnly: true })
+      .status(200)
+      .json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleSignIn = async (req, res, next) => {
+  const { displayName, email, photoURL } = req.body;
+
+  try {
+    const existUser = await User.findOne({ email });
+    if (existUser) {
+      const token = createToken(existUser);
+      const { password, ...user } = existUser._doc;
+
+      return res
+        .cookie('token', token, { httpOnly: true })
+        .status(200)
+        .json(user);
+    } else {
+      const generatedPassword = generatePassword(12);
+      const hashedPassword = bcrypt.hashSync(generatedPassword, 10);
+
+      const newUser = new User({
+        email,
+        username: displayName,
+        password: hashedPassword,
+        avatar: photoURL,
+      });
+
+      await newUser.save();
+      const token = createToken(newUser);
+      const { password, ...user } = newUser._doc;
+
+      return res
+        .cookie('token', token, { httpOnly: true })
+        .status(200)
+        .json(user);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signOut = async (req, res, next) => {
+  try {
+    res.clearCookie('token');
+    return res.status(200).json({ message: 'Successfully signed out' });
   } catch (error) {
     next(error);
   }

@@ -18,7 +18,7 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      default: '/client/src/assets/avatar.jpg',
+      default: 'https://shorturl.at/hkqOX',
     },
   },
   { timestamps: true },
