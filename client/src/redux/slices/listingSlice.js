@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../../config/axios.js';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -34,20 +34,6 @@ export const deleteListing = createAsyncThunk(
     }
   },
 );
-
-// export const searchListings = createAsyncThunk(
-//   'listing/searchListings',
-//   async (params, { rejectWithValue }) => {
-//     try {
-//       const { data } = await axios.get(`/api/listing/get?${params}`);
-
-//       return data;
-//     } catch (error) {
-//       const message = error.response.data.message;
-//       return rejectWithValue(message);
-//     }
-//   },
-// );
 
 export const listingsSlice = createSlice({
   name: 'listing',
@@ -85,18 +71,6 @@ export const listingsSlice = createSlice({
         state.error = action.payload;
         state.isLoading = false;
       }),
-  // .addCase(searchListings.fulfilled, (state, action) => {
-  //   state.listing = action.payload;
-  //   state.isLoading = false;
-  //   state.error = null;
-  // })
-  // .addCase(searchListings.pending, (state) => {
-  //   state.isLoading = true;
-  // })
-  // .addCase(searchListings.rejected, (state, action) => {
-  //   state.error = action.payload;
-  //   state.isLoading = false;
-  // }),
 });
 
 export const selectListings = (state) => state.listing?.listing;

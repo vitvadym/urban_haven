@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaCloudUploadAlt } from 'react-icons/fa';
 import { ListingPreviewImage } from '../../components/ListingPreviewImage/ListingPreviewImage';
 import Loader from '../../components/Loader';
-import axios from 'axios';
+import axios from '../../config/axios.js';
 
 export const CreateListing = () => {
   const [files, setFiles] = useState([]);

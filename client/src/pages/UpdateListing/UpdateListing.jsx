@@ -6,8 +6,7 @@ import { useParams } from 'react-router-dom';
 import { FaCloudUploadAlt } from 'react-icons/fa';
 import { ListingPreviewImage } from '../../components/ListingPreviewImage/ListingPreviewImage.jsx';
 import Loader from '../../components/Loader.jsx';
-import axios from 'axios';
-// import uploadImages from '../../utils/uploadImages.js';
+import axios from '../../config/axios.js';
 
 export const UpdateListing = () => {
   const [images, setImages] = useState([]);

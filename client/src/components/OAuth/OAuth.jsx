@@ -41,7 +41,6 @@ const OAuth = () => {
     },
   });
 
-
   useEffect(() => {
     if (isAuth) {
       navigate('/');

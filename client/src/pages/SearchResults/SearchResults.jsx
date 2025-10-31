@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ListingCart } from '../../components/ListingCart/ListingCart';
 import Loader from '../../components/Loader';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
+import axios from '../../config/axios.js';
 export const SearchResults = () => {
   const [initialSearchComplete, setInitialSearchComplete] = useState(false);
   const [isShowMore, setIsShowMore] = useState(true);

@@ -137,9 +137,6 @@ export const Profile = () => {
         {uploadImageError && (
           <p className='text-center text-sm text-red-500'>{uploadImageError}</p>
         )}
-        {persentation === 100 && !isError && (
-          <p className='text-center text-green-700 '>{uploadResult}</p>
-        )}
       </form>
     </div>
   );

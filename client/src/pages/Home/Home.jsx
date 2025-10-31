@@ -2,11 +2,8 @@
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-// import SwiperCore from 'swiper';
-// import { Autoplay } from 'swiper/modules';
-// import 'swiper/css/bundle';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../config/axios.js';
 import { useEffect, useState } from 'react';
 import { ListingCart } from '../../components/ListingCart/ListingCart';
 import { slides } from '../../assets/assets';
