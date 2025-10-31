@@ -1,39 +1,29 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
+import dbConnect from './config/db.js';
 import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js';
 import listingRouter from './routes/listing.route.js';
 import globalErrorHandler from './controllers/error.controller.js';
 import cookieParser from 'cookie-parser';
-import path, { dirname } from 'path';
+// import path, { dirname } from 'path';
 
 const app = express();
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 
-const __dirname = path.resolve();
+// const __dirname = path.resolve();
 
 const PORT = process.env.PORT || 3001;
 
-const run = () => {
-  try {
-    mongoose.connect(process.env.DB_URI, {
-      dbName: 'urban_haven',
-    });
-    console.log('Connected to MongoDB');
-
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
+dbConnect();
 
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
@@ -45,4 +35,6 @@ app.use('/api/listing', listingRouter);
 // });
 
 app.use(globalErrorHandler);
-run();
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
