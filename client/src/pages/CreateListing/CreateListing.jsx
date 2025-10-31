@@ -1,5 +1,3 @@
-// import { storage } from '../../firebase';
-// import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../redux/slices/userSlice';
@@ -8,23 +6,23 @@ import { FaCloudUploadAlt } from 'react-icons/fa';
 import { ListingPreviewImage } from '../../components/ListingPreviewImage/ListingPreviewImage';
 import Loader from '../../components/Loader';
 import axios from 'axios';
-import uploadImages from '../../utils/uploadImages.js';
 
 export const CreateListing = () => {
-  const [images, setImages] = useState([]);
+  const [files, setFiles] = useState([]);
   const [uploadImageError, setUploadImageError] = useState(null);
   const [error, setError] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    images: [],
+
+  const FILES_LIMIT = 6;
+
+  const [formFields, setFormFields] = useState({
     name: '',
     description: '',
     address: '',
     type: 'rent',
     bedrooms: 1,
     bathrooms: 1,
-    regularPrice: 50,
+    regularPrice: 0,
     discountPrice: 0,
     parking: false,
     furnished: false,
@@ -36,48 +34,30 @@ export const CreateListing = () => {
   const inputFileRef = useRef(null);
 
   const handleChangeImages = (event) => {
-    setImages([...images, ...event.target.files]);
+    setFiles([...files, ...event.target.files]);
   };
 
   const handleChangeInputField = (event) => {
     if (event.target.id === 'rent' || event.target.id === 'sell') {
-      setFormData({
-        ...formData,
+      setFormFields({
+        ...formFields,
         type: event.target.id,
       });
     } else if (event.target.type === 'checkbox') {
-      setFormData({
-        ...formData,
+      setFormFields({
+        ...formFields,
         [event.target.id]: event.target.checked,
       });
     } else if (event.target.type === 'number') {
-      setFormData({
-        ...formData,
+      setFormFields({
+        ...formFields,
         [event.target.id]: +event.target.value,
       });
     } else {
-      setFormData({
-        ...formData,
+      setFormFields({
+        ...formFields,
         [event.target.id]: event.target.value,
       });
-    }
-  };
-
-  const handleImagesUpoad = async () => {
-    try {
-      setIsUploading(true);
-      const urls = await uploadImages(images);
-
-      if (urls.length > 0 && urls) {
-        setFormData({
-          ...formData,
-          images: [...formData.images, ...urls],
-        });
-      }
-    } catch (error) {
-      setUploadImageError(error.message);
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -88,15 +68,24 @@ export const CreateListing = () => {
       setIsLoading(true);
       setError(null);
 
-      if (formData.images?.length < 1) {
+      if (files.length < 1) {
         return setUploadImageError('Please upload at least 1 image');
       }
-      await axios.post('/api/listing/create', {
-        ...formData,
-        userRef: user._id,
+      const formData = new FormData();
+      for (const key in formFields) {
+        formData.append(key, formFields[key]);
+      }
+      files.forEach((file) => {
+        formData.append('images', file);
       });
+  
+      formData.append('userRef', user._id);
+      const {  data } = await axios.post('/api/listing/create', formData);
 
-      navigate('/my-listings');
+      if (data) {
+        navigate('/my-listings');
+      }
+
     } catch (error) {
       setError(error.message);
     } finally {
@@ -105,17 +94,20 @@ export const CreateListing = () => {
   };
 
   const handleDeleteImage = (index) => {
-    setFormData({
-      ...formData,
-      images: formData.images.filter((_, i) => i !== index),
-    });
+    setFiles(files.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
-    if (images.length > 0) {
-      handleImagesUpoad();
+    if (files.length > FILES_LIMIT) {
+      setError(`You can upload up to ${FILES_LIMIT} images`);
+      const trimmedFiles = files.slice(0, FILES_LIMIT);
+      setFiles(trimmedFiles);
     }
-  }, [images]);
+
+    if (files.length < FILES_LIMIT) {
+      setError(null);
+    }
+  }, [files]);
 
   return (
     <div className='mx-auto max-w-6xl p-4'>
@@ -132,7 +124,7 @@ export const CreateListing = () => {
           placeholder='Name'
           required
           id='name'
-          value={formData.name}
+          value={formFields.name}
           onChange={handleChangeInputField}
         />
         <textarea
@@ -140,7 +132,7 @@ export const CreateListing = () => {
           placeholder='Description'
           required
           id='description'
-          value={formData.description}
+          value={formFields.description}
           onChange={handleChangeInputField}
         />
         <input
@@ -149,7 +141,7 @@ export const CreateListing = () => {
           placeholder='Adress'
           required
           id='address'
-          value={formData.address}
+          value={formFields.address}
           onChange={handleChangeInputField}
         />
         <div className='flex flex-wrap items-center gap-5'>
@@ -161,7 +153,7 @@ export const CreateListing = () => {
               type='checkbox'
               id='rent'
               className='mr-1'
-              checked={formData.type === 'rent'}
+              checked={formFields.type === 'rent'}
               onChange={handleChangeInputField}
             />
             Rent
@@ -172,7 +164,7 @@ export const CreateListing = () => {
               type='checkbox'
               id='sell'
               className='mr-1'
-              checked={formData.type === 'sell'}
+              checked={formFields.type === 'sell'}
               onChange={handleChangeInputField}
             />
             Sell
@@ -183,7 +175,7 @@ export const CreateListing = () => {
               type='checkbox'
               id='parking'
               className='mr-1'
-              checked={formData.parking}
+              checked={formFields.parking}
               onChange={handleChangeInputField}
             />
             Parking spot
@@ -194,7 +186,7 @@ export const CreateListing = () => {
               type='checkbox'
               id='furnished'
               className='mr-1'
-              checked={formData.furnished}
+              checked={formFields.furnished}
               onChange={handleChangeInputField}
             />
             Furnished
@@ -208,7 +200,7 @@ export const CreateListing = () => {
               required
               id='bedrooms'
               className='mr-2 w-16 rounded-lg border border-slate-300 p-2'
-              value={formData.bedrooms}
+              value={formFields.bedrooms}
               onChange={handleChangeInputField}
             />
             <span>Beds</span>
@@ -222,7 +214,7 @@ export const CreateListing = () => {
               required
               id='bathrooms'
               className='mr-2 w-16 rounded-lg border border-slate-300 p-2'
-              value={formData.bathrooms}
+              value={formFields.bathrooms}
               onChange={handleChangeInputField}
             />
             <span>Bath</span>
@@ -234,7 +226,7 @@ export const CreateListing = () => {
               id='regularPrice'
               required
               className='mr-2 w-20 rounded-lg border border-slate-300 p-2'
-              value={formData.regularPrice}
+              value={formFields.regularPrice}
               onChange={handleChangeInputField}
             />
             <span>Regular price</span>
@@ -245,7 +237,7 @@ export const CreateListing = () => {
               id='discountPrice'
               required
               className='mr-2 w-20 rounded-lg border border-slate-300 p-2'
-              value={formData.discountPrice}
+              value={formFields.discountPrice}
               onChange={handleChangeInputField}
             />
             <span>Discount price</span>
@@ -272,28 +264,24 @@ export const CreateListing = () => {
               Select images
               <FaCloudUploadAlt />
             </button>
-            {formData.images?.length > 0 && (
+            {formFields.images?.length > 0 && (
               <span className='text-sm text-green-700'>
-                Selected {images.length} files
+                Selected {formFields.images.length} files
               </span>
             )}
           </div>
         </div>
 
-        {!isUploading ? (
-          <div className='flex gap-3 '>
-            {formData.images?.length > 0 &&
-              formData.images?.map((imageUrl, index) => (
-                <ListingPreviewImage
-                  onDelete={() => handleDeleteImage(index)}
-                  key={index}
-                  imageUrl={imageUrl}
-                />
-              ))}
-          </div>
-        ) : (
-          <Loader />
-        )}
+        <div className='flex gap-3 '>
+          {files.length > 0 &&
+            files.map((file, index) => (
+              <ListingPreviewImage
+                onDelete={() => handleDeleteImage(index)}
+                key={index}
+                imageUrl={URL.createObjectURL(file)}
+              />
+            ))}
+        </div>
 
         <button className='max-w-40 rounded-lg bg-slate-700 p-3 uppercase text-white duration-200 hover:opacity-95 disabled:opacity-80'>
           {isLoading ? <Loader /> : 'Create'}

@@ -5,8 +5,6 @@ import Loader from '../../components/Loader';
 import { RiDeleteBin6Line, RiFileEditLine } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser, selectIsAuth } from '../../redux/slices/userSlice';
-import { TopSlider } from '../../components/TopSlider/TopSlider';
-import { ThumbSlider } from '../../components/ThumbSlider/ThumbSlider';
 import {
   FaBath,
   FaBed,
@@ -16,9 +14,10 @@ import {
 } from 'react-icons/fa';
 import styles from './styles.module.css';
 import { deleteListing } from '../../redux/slices/listingSlice';
+import ImageGrid from './ImageGrig';
 
 const ListingItem = () => {
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  // const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
   const { id: listingId } = useParams();
 
@@ -90,16 +89,8 @@ const ListingItem = () => {
       {error && <p className={styles.error}>{error}</p>}
       {listing && !isLoading && !error && (
         <>
-          <div className='w-full'>
-            <TopSlider
-              images={images}
-              thumbsSwiper={thumbsSwiper}
-            />
-            <ThumbSlider
-              images={images}
-              setThumbsSwiper={setThumbsSwiper}
-            />
-          </div>
+        <ImageGrid images={images} />
+
           <div className={styles.content}>
             <h1 className={styles.contentHeader}>
               {name} - $

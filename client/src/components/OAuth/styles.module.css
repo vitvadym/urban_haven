@@ -1,3 +1,0 @@
-.googleButton {
-  @apply bg-red-900 p-3 rounded-lg shadow-sm uppercase hover:opacity-95 disabled:opacity-80;
-}

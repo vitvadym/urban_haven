@@ -1,11 +1,12 @@
-import { app } from '../../firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { googleSignIn } from '../../redux/slices/userSlice';
 import { selectIsAuth, selectIsLoading } from '../../redux/slices/userSlice';
-import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useEffect } from 'react';
 import Loader from '../Loader';
+import icon from '../.../../../assets/google-icon-logo.svg';
+import axios from 'axios';
 
 const OAuth = () => {
   const dispatch = useDispatch();
@@ -14,20 +15,32 @@ const OAuth = () => {
   const isAuth = useSelector(selectIsAuth);
   const isLoading = useSelector(selectIsLoading);
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const auth = getAuth(app);
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (credentialResponse) => {
+      const { access_token } = credentialResponse;
+      const { data } = await axios.get(
+        'https://www.googleapis.com/oauth2/v1/userinfo',
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        },
+      );
+      const { given_name, email, picture } = data;
 
-      const result = await signInWithPopup(auth, provider);
-      const {
-        user: { displayName, email, photoURL },
-      } = result;
-      dispatch(googleSignIn({ displayName, email, photoURL }));
-    } catch (error) {
+      dispatch(
+        googleSignIn({
+          displayName: given_name,
+          email: email,
+          photoURL: picture,
+        }),
+      );
+    },
+    onError: (error) => {
       console.log(error);
-    }
-  };
+    },
+  });
+
 
   useEffect(() => {
     if (isAuth) {
@@ -36,10 +49,17 @@ const OAuth = () => {
   }, [isAuth, navigate]);
   return (
     <button
-      onClick={handleGoogleSignIn}
+      onClick={googleLogin}
       type='button'
-      className='bg-red-700 p-3 rounded-lg shadow-sm uppercase hover:opacity-85 duration-200 disabled:opacity-80'
+      className='flex items-center justify-center gap-6 rounded-lg border border-gray-300 p-3 shadow-sm transition-shadow hover:shadow-md'
     >
+      <span>
+        <img
+          className='h-5'
+          src={icon}
+          alt='google icon'
+        />
+      </span>
       {isLoading ? <Loader /> : 'Sign in with Google'}
     </button>
   );

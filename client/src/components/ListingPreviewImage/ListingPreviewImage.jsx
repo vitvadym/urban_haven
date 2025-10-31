@@ -1,30 +1,21 @@
-import { useState } from 'react';
 import { TiDeleteOutline } from 'react-icons/ti';
 
 // eslint-disable-next-line react/prop-types
 export const ListingPreviewImage = ({ imageUrl, onDelete }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  const handleImageLoading = () => {
-    setImageLoaded(true);
-  };
   return (
-    <div className='relative'>
+    <div className='group relative transition-all duration-200 ease-in-out hover:scale-105'>
       <img
         className='w-30 h-20 rounded-lg shadow-md'
         src={imageUrl}
         alt='listing image'
-        onLoad={handleImageLoading}
       />
-      {imageLoaded && (
-        <span
-          onClick={onDelete}
-          title='delete image'
-          className='absolute right-1 top-1 cursor-pointer rounded-full'
-        >
-          <TiDeleteOutline />
-        </span>
-      )}
+      <span
+        onClick={onDelete}
+        title='delete image'
+        className='absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 cursor-pointer group-hover:block'
+      >
+        <TiDeleteOutline className='h-10 w-10 text-white drop-shadow-md' />
+      </span>
     </div>
   );
 };

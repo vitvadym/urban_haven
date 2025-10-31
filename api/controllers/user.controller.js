@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import uploadAssets from '../utils/uploadAssets.js';
 import ApiError from '../utils/ApiError.js';
 import User from '../models/user.model.js';
 
@@ -17,7 +18,8 @@ export const getMe = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const { username, email, avatar, password } = req.body;
+    const files = req.files;
+    const { username, email, password } = req.body;
     const existUser = await User.findById(req.params.id);
 
     if (!existUser) {
@@ -25,18 +27,25 @@ export const updateUser = async (req, res, next) => {
     }
 
     let hashedPassword;
+    let newAvatarUrl;
 
     if (password) {
       hashedPassword = bcrypt.hashSync(password, 10);
     }
+
+    if (files.length > 0) {
+      const uploadResponse = await uploadAssets(files, '/user_avatars');
+      newAvatarUrl = uploadResponse[0]?.url;
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
           username,
           email,
-          avatar,
-          password: hashedPassword,
+          password: hashedPassword ? hashedPassword : existUser.password,
+          avatar: newAvatarUrl ? newAvatarUrl : existUser.avatar,
         },
       },
       {

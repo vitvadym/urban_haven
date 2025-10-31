@@ -1,23 +1,21 @@
 /* eslint-disable react/no-unescaped-entities */
-import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore from 'swiper';
-import { Autoplay } from 'swiper/modules';
-import 'swiper/css/bundle';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
+// import SwiperCore from 'swiper';
+// import { Autoplay } from 'swiper/modules';
+// import 'swiper/css/bundle';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { ListingCart } from '../../components/ListingCart/ListingCart';
+import { slides } from '../../assets/assets';
 
-const slides = [
-  'https://shorturl.at/avwR6',
-  'https://shorturl.at/GJUX3',
-  'https://shorturl.at/aksN4',
-];
 export const Home = () => {
-  SwiperCore.use([Autoplay]);
+  // SwiperCore.use([Autoplay]);
   const [rentListings, setRentListings] = useState([]);
   const [sellListings, setSellListings] = useState([]);
-
+  
   useEffect(() => {
     const fetchRentListing = async () => {
       try {
@@ -40,6 +38,15 @@ export const Home = () => {
 
     fetchSellListing();
   }, []);
+
+  const settings = {
+    infinite: true,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    adaptiveHeight: true,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  }
   return (
     <>
       <div className='mx-auto flex max-w-6xl flex-col gap-6 p-28 px-3'>
@@ -60,7 +67,21 @@ export const Home = () => {
           Let's get started...
         </Link>
       </div>
-      <Swiper
+      <div className="slider-container overflow-hidden">
+        <Slider {...settings}>
+          {slides.map((slide, index) => (
+            <div key={index}>
+              <img
+                src={slide}
+                alt={slide}
+                className=' max-h-[700px] w-full  object-cover'
+              />
+            </div>
+          ))}
+        </Slider>
+      </div>
+
+      {/* <Swiper
         autoplay
         loop={true}
         spaceBetween={10}
@@ -74,8 +95,7 @@ export const Home = () => {
               className=' max-h-[700px] w-full  object-cover'
             />
           </SwiperSlide>
-        ))}
-      </Swiper>
+        ))} */}
       <div className='mx-auto my-10 flex max-w-6xl flex-col gap-6 '>
         {rentListings && rentListings.length > 0 && (
           <>

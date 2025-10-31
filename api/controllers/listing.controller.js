@@ -1,10 +1,20 @@
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
 import Listing from '../models/listing.model.js';
+import uploadAssets from '../utils/uploadAssets.js';
 
 export const createListing = async (req, res, next) => {
   try {
-    const listing = await Listing.create(req.body);
+    const files = req.files;
+    const body = req.body;
+
+    const uploadResponse = await uploadAssets(files, '/real_estate_images');
+    const urls = uploadResponse.map((response) => response.url);
+
+    const listing = await Listing.create({
+      ...body,
+      images: urls,
+    });
 
     return res.status(201).json(listing);
   } catch (error) {

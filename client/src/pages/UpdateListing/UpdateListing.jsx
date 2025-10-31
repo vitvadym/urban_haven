@@ -7,7 +7,7 @@ import { FaCloudUploadAlt } from 'react-icons/fa';
 import { ListingPreviewImage } from '../../components/ListingPreviewImage/ListingPreviewImage.jsx';
 import Loader from '../../components/Loader.jsx';
 import axios from 'axios';
-import uploadImages from '../../utils/uploadImages.js';
+// import uploadImages from '../../utils/uploadImages.js';
 
 export const UpdateListing = () => {
   const [images, setImages] = useState([]);
@@ -46,8 +46,6 @@ export const UpdateListing = () => {
     fetchListing();
   }, []);
 
-  console.log(formData);
-
   const inputFileRef = useRef(null);
 
   const handleChangeImages = (event) => {
@@ -81,7 +79,8 @@ export const UpdateListing = () => {
   const handleImagesUpoad = async () => {
     try {
       setIsUploading(true);
-      const urls = await uploadImages(images);
+      // const urls = await uploadImages(images);
+      const urls = [];
 
       if (urls.length > 0 && urls) {
         setFormData({

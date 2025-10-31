@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { store, persistor } from './redux/store.js';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App.jsx';
 // import { saveData } from './utils/browserStorage.js';
 import './index.css';
@@ -16,7 +17,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       loading={null}
       persistor={persistor}
     >
-      <App />
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <App />
+      </GoogleOAuthProvider>
     </PersistGate>
   </Provider>,
 );

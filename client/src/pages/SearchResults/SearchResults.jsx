@@ -121,9 +121,6 @@ export const SearchResults = () => {
 
     navigate(`${location.pathname}?${urlParams.toString()}`);
   };
-
-  console.log(listings.length);
-
   return (
     <div className='mx-auto flex max-w-6xl flex-col p-3'>
       <form
