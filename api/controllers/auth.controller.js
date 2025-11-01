@@ -4,6 +4,7 @@ import ApiError from '../utils/ApiError.js';
 import generatePassword from '../utils/generatePassword.js';
 import createToken from '../utils/createToken.js';
 
+const isProduction = process.env.NODE_ENV === 'production';
 
 export const signUp = async (req, res, next) => {
   try {
@@ -24,14 +25,12 @@ export const signUp = async (req, res, next) => {
     const token = createToken(user);
     await user.save();
 
-    const isProduction = process.env.NODE_ENV === 'production';
-
     return res
       .status(201)
       .cookie('token', token, {
         httpOnly: true,
         secure: isProduction,
-        sameSite: 'none',
+        sameSite: isProduction ? 'none' : 'lax',
       })
       .json(user);
   } catch (error) {
@@ -63,7 +62,7 @@ export const signIn = async (req, res, next) => {
       .cookie('token', token, {
         httpOnly: true,
         secure: isProduction,
-        sameSite: 'none',
+        sameSite: isProduction ? 'none' : 'lax',
       })
       .status(200)
       .json(user);
@@ -101,7 +100,11 @@ export const googleSignIn = async (req, res, next) => {
       const { password, ...user } = newUser._doc;
 
       return res
-        .cookie('token', token, { httpOnly: true })
+        .cookie('token', token, {
+          httpOnly: true,
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
+        })
         .status(200)
         .json(user);
     }
